@@ -1,5 +1,5 @@
-const { Sequlize, DataTypes } = require('sequelize');
-const sequelize = new Sequlize('sqlite::memory:');
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize('sqlite::memory:');
 
 module.exports = function(sequelize, DataTypes){
   const Event = sequelize.define('Event', {
