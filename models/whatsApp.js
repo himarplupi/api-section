@@ -1,8 +1,20 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('sqlite::memory:');
+const db = require('../config/config');
 
-module.exports = function(sequelize, DataTypes){
-  const WhatsApp = sequelize.define('WhatsApp', {
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize(
+  db.development.database,
+  db.development.username,
+  db.development.password,
+  {
+    host: db.development.host,
+    dialect: db.development.dialect,
+    debug: false,
+  }
+);
+
+const WhatsApp = sequelize.define(
+  'whatsapp',
+  {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -13,13 +25,17 @@ module.exports = function(sequelize, DataTypes){
       allowNull: false,
     },
     link: {
-      type: DataTypes.ENUM('L', 'P'),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
-  });
-  return WhatsApp;
-}
+  },
+  {
+    timestamps: true,
+  }
+);
+
+module.exports = WhatsApp;

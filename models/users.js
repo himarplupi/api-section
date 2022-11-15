@@ -1,12 +1,25 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('sqlite::memory:');
+const db = require('../config/config');
 
-module.exports = function(sequelize, DataTypes){
-  const User = sequelize.define('User', {
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize(
+  db.development.database,
+  db.development.username,
+  db.development.password,
+  {
+    host: db.development.host,
+    dialect: db.development.dialect,
+    debug: false,
+  }
+);
+
+const Users = sequelize.define(
+  'users',
+  {
     id: {
       type: DataTypes.UUID, //DataTypes.INTEGER
       defaultValue: DataTypes.UUIDV4, //autoIncrement: true
       primaryKey: true,
+      allowNull: false,
     },
     name: {
       type: DataTypes.STRING,
@@ -36,6 +49,21 @@ module.exports = function(sequelize, DataTypes){
       type: DataTypes.STRING,
       allowNull: false,
     },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+Users.associate = models => {
+  Users.hasMany(models.Submission, {
+    foreignKey: 'emailUsers',
+    sourceKey: 'email',
   });
-  return User
-}
+  Users.hasMany(models.Absensi, {
+    foreignKey: 'idUser',
+    sourceKey: 'id',
+  });
+};
+
+module.exports = Users;

@@ -1,28 +1,56 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('sqlite::memory:');
-//const usersModel = require('users');
-//const eventModel = require('event');
+const db = require('../config/config');
 
-module.exports = function(sequelize, DataTypes){
-  const Absensi = sequelize.define('Absensi', {
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize(
+  db.development.database,
+  db.development.username,
+  db.development.password,
+  {
+    host: db.development.host,
+    dialect: db.development.dialect,
+    debug: false,
+  }
+);
+
+const Absensi = sequelize.define(
+  'absensi',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     idUser: {
       type: DataTypes.UUID,
-      references: 'users',
-      referencesKey: 'id',
       allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
     idEvent: {
       type: DataTypes.INTEGER,
-      references: 'events',
-      referencesKey: 'id',
       allowNull: false,
     },
     tanggal: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
-  },{
-    noPrimaryKey: true,
+  },
+  {
+    timestamps: false,
+  }
+);
+
+Absensi.associate = function (models) {
+  Absensi.belongsTo(models.Users, {
+    foreignKey: 'idUser',
+    targetKey: 'id',
   });
-  return Absensi;
-}
+  Absensi.belongsTo(models.Event, {
+    foreignKey: 'idEvent',
+    targetKey: 'id',
+  });
+};
+
+module.exports = Absensi;
