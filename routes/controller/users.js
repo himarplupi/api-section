@@ -1,12 +1,17 @@
 const bcrypt = require('bcrypt');
 
-const Users = require('../../models/users');
+const {
+  User_BootCamp,
+  User_Competion,
+  User_Seminar,
+} = require('../../models/users');
 const Whatsapp = require('../../models/whatsapp');
 // Controller Create a new user
 const createUser = async (req, res) => {
   const { name, email, password, jk, noWhatsapp, institusi, fakultas } =
     req.body;
-  var wa = '';
+  var wa,
+    user = null;
   try {
     if (
       !name ||
@@ -20,29 +25,65 @@ const createUser = async (req, res) => {
       return res.status(400).json({ error: 'Please fill all field' });
     }
     // check email
-    const _user = await Users.findOne({ where: { email } });
-    if (_user) {
-      return res.status(400).json({ error: 'Email already exists' });
-    }
-    const hash = await bcrypt.hash(password, 10);
-    const user = await Users.create({
-      name,
-      email,
-      password: hash,
-      jk,
-      noWhatsapp,
-      institusi,
-      fakultas,
-    });
-    const url = req.protocol + '://' + req.get('host') + req.originalUrl;
 
+    const hash = await bcrypt.hash(password, 10);
     if (url.split('/').pop() === 'seminar') {
+      const _user = await User_Seminar.findOne({ where: { email } });
+      if (_user) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
       wa = await Whatsapp.findOne({ where: { id: 1 } });
+      const user = await User_Seminar.create({
+        name,
+        email,
+        password: hash,
+        jk,
+        noWhatsapp,
+        institusi,
+        fakultas,
+      });
     } else if (url.split('/').pop() === 'bootcamp') {
+      const _user = await User_BootCamp.findOne({ where: { email } });
+      if (_user) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
       wa = await Whatsapp.findOne({ where: { id: 3 } });
+      const user = await User_BootCamp.create({
+        name,
+        email,
+        password: hash,
+        jk,
+        noWhatsapp,
+        institusi,
+        fakultas,
+      });
+      await User_Competion.create({
+        name,
+        email,
+        password: hash,
+        jk,
+        noWhatsapp,
+        institusi,
+        fakultas,
+      });
     } else {
       wa = await Whatsapp.findOne({ where: { id: 2 } });
+      const _user = await User_Competion.findOne({ where: { email } });
+      if (_user) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+      const user = await User_Competion.create({
+        name,
+        email,
+        password: hash,
+        jk,
+        noWhatsapp,
+        institusi,
+        fakultas,
+      });
     }
+
+    const url = req.protocol + '://' + req.get('host') + req.originalUrl;
 
     res.status(201).json({
       message: 'User created successfully',
@@ -58,22 +99,8 @@ const createUser = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     //   get url path
-    const users = await Users.findAll();
+    const users = await User_BootCamp.findAll();
     res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-//  Controller Get user by id
-const getUsersId = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await Users.findOne({ where: { id } });
-    if (user) {
-      return res.status(200).json(user);
-    }
-    res.status(404).json({ error: 'User not found' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -96,6 +123,5 @@ const getUsersEmail = async (req, res) => {
 module.exports = {
   createUser,
   getUsers,
-  getUsersId,
   getUsersEmail,
 };
