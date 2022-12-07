@@ -9,7 +9,9 @@ const {
   getUsersEmail,
 } = require('./controller/users');
 
-router.post('/daftar', createUser);
+router.post('/daftar/seminar', createUser);
+router.post('/daftar/bootcamp', createUser);
+router.post('/daftar/competition', createUser);
 router.get('/', getUsers);
 router.get('/:id', getUsersId);
 router.get('/:email', getUsersEmail);

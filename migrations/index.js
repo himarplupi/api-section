@@ -8,10 +8,8 @@ const models = [Users, Event, Submission, WhatsApp, Absensi];
 
 models.map(model => {
   model
-    .sync({ force: true })
-    .then(() => {
-      console.log(`${model.name} table created`);
-    })
+    .sync({ force: true, debug: false })
+    .then(() => {})
     .catch(err => {
       console.log(err);
     });

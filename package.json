@@ -11,9 +11,11 @@
   "author": "HIMA RPL UPI",
   "scripts": {
     "start": "nodemon ./bin/www",
-    "migration": "node ./migrations/index.js"
+    "migration": "node ./migrations/index.js",
+    "seed": "node ./seeds/index.js"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.1.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",

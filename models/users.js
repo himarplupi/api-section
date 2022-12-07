@@ -41,7 +41,7 @@ const Users = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    division: {
+    fakultas: {
       type: DataTypes.STRING,
       allowNull: false,
     },

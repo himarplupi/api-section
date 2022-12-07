@@ -1,11 +1,12 @@
 const bcrypt = require('bcrypt');
 
 const Users = require('../../models/users');
-
+const Whatsapp = require('../../models/whatsapp');
 // Controller Create a new user
 const createUser = async (req, res) => {
-  const { name, email, password, jk, noWhatsapp, institusi, division } =
+  const { name, email, password, jk, noWhatsapp, institusi, fakultas } =
     req.body;
+  var wa = '';
   try {
     if (
       !name ||
@@ -14,12 +15,12 @@ const createUser = async (req, res) => {
       !jk ||
       !noWhatsapp ||
       !institusi ||
-      !division
+      !fakultas
     ) {
       return res.status(400).json({ error: 'Please fill all field' });
     }
     // check email
-    const _user = await Users.findOne({ email });
+    const _user = await Users.findOne({ where: { email } });
     if (_user) {
       return res.status(400).json({ error: 'Email already exists' });
     }
@@ -31,9 +32,23 @@ const createUser = async (req, res) => {
       jk,
       noWhatsapp,
       institusi,
-      division,
+      fakultas,
     });
-    res.status(201).json(user);
+    const url = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+    if (url.split('/').pop() === 'seminar') {
+      wa = await Whatsapp.findOne({ where: { id: 1 } });
+    } else if (url.split('/').pop() === 'bootcamp') {
+      wa = await Whatsapp.findOne({ where: { id: 3 } });
+    } else {
+      wa = await Whatsapp.findOne({ where: { id: 2 } });
+    }
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user,
+      link: wa.link,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -42,6 +57,7 @@ const createUser = async (req, res) => {
 // Controller Get all users
 const getUsers = async (req, res) => {
   try {
+    //   get url path
     const users = await Users.findAll();
     res.status(200).json(users);
   } catch (error) {
